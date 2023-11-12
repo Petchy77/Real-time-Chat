@@ -1,0 +1,68 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Chat App</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; }
+    #messages { list-style-type: none; margin: 0; padding: 0; }
+    #messages li { padding: 5px 10px; }
+    #messages li:nth-child(odd) { background: #eee; }
+  </style>
+</head>
+<body>
+  <div id="login">
+    <h2>Login</h2>
+    <form id="loginForm">
+      <label for="username">Username:</label>
+      <input type="text" id="username" autocomplete="off" required />
+      <button type="submit">Login</button>
+    </form>
+  </div>
+
+  <div id="chat" style="display: none;">
+    <h2>Chat</h2>
+    <ul id="messages"></ul>
+    <form id="form">
+      <input id="m" placeholder="Type your message" autocomplete="off" />
+      <button>Send</button>
+    </form>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.3/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const loginForm = document.getElementById('loginForm');
+    const chatDiv = document.getElementById('chat');
+    const messages = document.getElementById('messages');
+    const form = document.getElementById('form');
+    const m = document.getElementById('m');
+    const usernameInput = document.getElementById('username');
+
+    loginForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const username = usernameInput.value;
+      socket.emit('login', username);
+      loginForm.style.display = 'none';
+      chatDiv.style.display = 'block';
+      return false;
+    });
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const message = m.value;
+      socket.emit('chat message', message);
+      m.value = '';
+      return false;
+    });
+
+    socket.on('chat message', function(data) {
+      const li = document.createElement('li');
+      li.appendChild(document.createTextNode(`${data.username}: ${data.message}`));
+      messages.appendChild(li);
+    });
+  </script>
+</body>
+</html>
